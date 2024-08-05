@@ -106,7 +106,7 @@ def bfs(initial_state):
         #check if current state is equal to goal state
         if state.is_goal():
             #get all parents of goal state
-            return state.get_path()
+            return state.get_path(), iterations
         #state was not goal state, add state to explored set
         explored.add(state)
         #move on to next neighbor in current depth
@@ -114,7 +114,7 @@ def bfs(initial_state):
             if neighbor not in explored and neighbor not in frontier:
                 frontier.append(neighbor)
         iterations+=1
-    return None
+    return None, None
 
 # print("BFS Solution:")
 # start_time = time.time()
@@ -184,7 +184,7 @@ def astar(initial_state):
         _, state = heapq.heappop(frontier)
         #if state is the goal state, done; follow its parent states
         if state.is_goal():
-            return state.get_path()
+            return state.get_path(), iterations
         #mark as visited
         explored.add(state)
         #add next neighbors to the priority queue if not already visited
@@ -192,7 +192,7 @@ def astar(initial_state):
             if neighbor not in explored:
                 heapq.heappush(frontier, (neighbor.depth + heuristic(neighbor), neighbor))
         iterations += 1
-    return None
+    return None, None
 
 # print("A* Solution:")
 # start_time = time.time()
@@ -231,13 +231,13 @@ def dfs(initial_state):
         state = frontier.pop()
         # print_board(state)
         if state.is_goal(): # Checks to see if current state == goal state, if yes then it returns and gets path, if no then keep running
-            return state.get_path()
+            return state.get_path(), iterations
         explored.add(state) # adds current state to the set to not be repeated
         for neighbor in state.get_neighbors():
             if neighbor not in explored and neighbor not in frontier: # Grabs the next state that has not been visisted or explored
                 frontier.append(neighbor)
         iterations += 1
-    return None
+    return None, None
 
 # print("DFS Solution:")
 # start_time = time.time()
@@ -277,13 +277,13 @@ def greedy_best_first(initial_state):
     while frontier and iterations <= MAX_ITERATION:
         _, state = heapq.heappop(frontier) # unpacks and pops the heapq's smallest element and stores that value into 'state'
         if state.is_goal(): # if the current state matches the goal state then the algorithm finishes and returns the complete path to the solution
-            return state.get_path()
+            return state.get_path(), iterations
         explored.add(state) # adds current state to the set to not be repeated
         for neighbor in state.get_neighbors():
             if neighbor not in explored:
                 heapq.heappush(frontier, (heuristic(neighbor), neighbor)) # Grabs the next state that has not been visisted or explored
         iterations += 1
-    return None
+    return None, None
 
 # print("Greedy Best-First Solution:")
 # start_time = time.time()
@@ -341,28 +341,37 @@ def greedy_best_first(initial_state):
 
 def ids(initial_state, max_depth=50):
     def dfs_limited(state, depth_limit, iterations):
+        #initialize stack of state and depth limit
         stack = [(state, 0)]
+        #initialize explored states
         explored = set()
+        # while we have more states in the stack and have not passed limitations
         while stack and iterations[0] < MAX_ITERATION:
+            #current state of board
             current_state, depth = stack.pop()
+            #if current state is equal to goal state
             if current_state.is_goal():
-                return current_state.get_path()
+                return current_state.get_path(), iterations[0]
+            #depth limit for simplicity
             if depth < depth_limit:
+                #mark as visited
                 explored.add(current_state)
+                #prepare next iteration
                 for neighbor in current_state.get_neighbors():
                     if neighbor not in explored:
                         stack.append((neighbor, depth + 1))
             iterations[0] += 1
-        return None
+        return None, None
 
     iterations = [0]
     for depth in range(max_depth):
+        #start recursive steps
         result = dfs_limited(initial_state, depth, iterations)
         if result:
-            return result
+            return result, iterations[0]
         if iterations[0] >= MAX_ITERATION:
             break
-    return None
+    return None, None
 
 
 # print("IDS Solution:")
@@ -413,14 +422,15 @@ for board in initial_boards:
     #run BFS
     print("BFS Solution:")
     start_time = time.time()
-    path = bfs(initial_state)
+    path, iterations = bfs(initial_state)
     end_time = time.time()
 
     # for state in path:
     #     print_board(state)
     print(f"Time taken: {end_time - start_time} seconds")
     if(path):
-        print(f"Number of moves: {len(path) - 1}\n")
+        print(f"Number of moves: {len(path) - 1}")
+        print(f"Number of iterations: {iterations}\n")
     else:
         print(f"Failed to find solution in {MAX_ITERATION} iterations\n")
 
@@ -429,13 +439,14 @@ for board in initial_boards:
     #RUN DFS
     print("DFS Solution:")
     start_time = time.time()
-    path = dfs(initial_state)
+    path, iterations = dfs(initial_state)
     end_time = time.time()
     # for state in path:
     #     print_board(state)
     print(f"Time taken: {end_time - start_time} seconds")
     if(path):
-        print(f"Number of moves: {len(path) - 1}\n")
+        print(f"Number of moves: {len(path) - 1}")
+        print(f"Number of iterations: {iterations}\n")
     else:
         print(f"Failed to find solution in {MAX_ITERATION} iterations\n")
     
@@ -443,13 +454,14 @@ for board in initial_boards:
     #RUN A*
     print("A* Solution:")
     start_time = time.time()
-    path = astar(initial_state)
+    path, iterations = astar(initial_state)
     end_time = time.time()
     # for state in path:
     #     print_board(state)
     print(f"Time taken: {end_time - start_time} seconds")
     if(path):
-        print(f"Number of moves: {len(path) - 1}\n")
+        print(f"Number of moves: {len(path) - 1}")
+        print(f"Number of iterations: {iterations}\n")
     else:
         print(f"Failed to find solution in {MAX_ITERATION} iterations\n")
     
@@ -457,13 +469,14 @@ for board in initial_boards:
     #RUN GFS
     print("Greedy Best-First Solution:")
     start_time = time.time()
-    path = greedy_best_first(initial_state)
+    path, iterations = greedy_best_first(initial_state)
     end_time = time.time()
     # for state in path:
     #     print_board(state)
     print(f"Time taken: {end_time - start_time} seconds")
     if(path):
-        print(f"Number of moves: {len(path) - 1}\n")
+        print(f"Number of moves: {len(path) - 1}")
+        print(f"Number of iterations: {iterations}\n")
     else:
         print(f"Failed to find solution in {MAX_ITERATION} iterations\n")
     
@@ -471,12 +484,13 @@ for board in initial_boards:
     #RUN IDS
     print("IDS Solution:")
     start_time = time.time()
-    path = ids(initial_state, max_depth=100)
+    path, iterations = ids(initial_state, max_depth=100)
     end_time = time.time()
     # for state in path:
     #     print_board(state)
     print(f"Time taken: {end_time - start_time} seconds")
     if(path):
-        print(f"Number of moves: {len(path) - 1}\n")
+        print(f"Number of moves: {len(path) - 1}")
+        print(f"Number of iterations: {iterations}\n")
     else:
         print(f"Failed to find solution in {MAX_ITERATION} iterations\n")
