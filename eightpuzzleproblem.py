@@ -344,57 +344,79 @@ def greedy_best_first(initial_state):
 #             return result, iterations
 #         depth += 1
 
+# def ids(initial_state, max_depth=50):
+#     """ Iterative Depth Search
+#     This will run the inner dfs_limited(state, depth_limit) function and will increase depth tentatively until the solution is found.
+
+#     Args:
+#         initial_state (_type_): Takes the intial state of the board as a parameter
+#     """    
+#     def dfs_limited(state, depth_limit, iterations):
+#         """ Works with the ids(initial_state) function.  This function checks to see if the goal state is reached, 
+#         if the depth limit is reached, then goes to the next neighbor with the depth limit decreased.
+
+#         Args:
+#             state (_type_): Current board state
+#             depth_limit (_type_): How deep the depth can go
+
+#         Returns:
+#             _type_: None
+#         """
+#         #initialize stack of state and depth limit
+#         stack = [(state, 0)]
+#         #initialize explored states
+#         explored = set()
+#         # while we have more states in the stack and have not passed limitations
+#         while stack and iterations[0] < MAX_ITERATION:
+#             #current state of board
+#             current_state, depth = stack.pop()
+#             #if current state is equal to goal state
+#             if current_state.is_goal():
+#                 return current_state.get_path(), iterations[0]
+#             #depth limit for simplicity
+#             if depth < depth_limit:
+#                 #mark as visited
+#                 explored.add(current_state)
+#                 #prepare next iteration
+#                 for neighbor in current_state.get_neighbors():
+#                     if neighbor not in explored:
+#                         stack.append((neighbor, depth + 1))
+#             iterations[0] += 1
+#         return None, None
+
+#     iterations = [0]
+#     for depth in range(max_depth):
+#         #start recursive steps
+        
+#         result, iterations[0] = dfs_limited(initial_state, depth, iterations)
+#         print(f"iterations: {iterations[0]}\n")
+#         if result:
+#             return result, iterations[0]
+#         if iterations[0] >= MAX_ITERATION:
+#             break
+#     return None, None
+
 def ids(initial_state, max_depth=50):
-    """ Iterative Depth Search
-    This will run the inner dfs_limited(state, depth_limit) function and will increase depth tentatively until the solution is found.
-
-    Args:
-        initial_state (_type_): Takes the intial state of the board as a parameter
-    """    
     def dfs_limited(state, depth_limit, iterations):
-        """ Works with the ids(initial_state) function.  This function checks to see if the goal state is reached, 
-        if the depth limit is reached, then goes to the next neighbor with the depth limit decreased.
-
-        Args:
-            state (_type_): Current board state
-            depth_limit (_type_): How deep the depth can go
-
-        Returns:
-            _type_: None
-        """
-        #initialize stack of state and depth limit
         stack = [(state, 0)]
-        #initialize explored states
-        explored = set()
-        # while we have more states in the stack and have not passed limitations
         while stack and iterations[0] < MAX_ITERATION:
-            #current state of board
             current_state, depth = stack.pop()
-            #if current state is equal to goal state
             if current_state.is_goal():
                 return current_state.get_path(), iterations[0]
-            #depth limit for simplicity
             if depth < depth_limit:
-                #mark as visited
-                explored.add(current_state)
-                #prepare next iteration
-                for neighbor in current_state.get_neighbors():
-                    if neighbor not in explored:
-                        stack.append((neighbor, depth + 1))
+                stack.extend((neighbor, depth + 1) for neighbor in reversed(current_state.get_neighbors()))
             iterations[0] += 1
         return None, None
 
     iterations = [0]
     for depth in range(max_depth):
-        #start recursive steps
-        
-        result = dfs_limited(initial_state, depth, iterations)
-        print(f"iterations: {iterations[0]}\n")
+        result, total_iterations = dfs_limited(initial_state, depth, iterations)
         if result:
-            return result, iterations[0]
+            return result, total_iterations
         if iterations[0] >= MAX_ITERATION:
             break
     return None, None
+
 
 
 # print("IDS Solution:")
