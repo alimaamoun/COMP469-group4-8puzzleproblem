@@ -23,11 +23,13 @@ def print_board(state):
 def evaluate(state):
     # Check rows
     for i in range(0, 9, 3):
+        #checks if its own marking and an empty spot are avaliable on each row
         if state[i] == state[i + 1] == state[i + 2] and state[i] != 0:
             return state[i]
 
     # Check columns
     for i in range(3):
+        #checks if its own marking and an empty spot are avaliable on each Column
         if state[i] == state[i + 3] == state[i + 6] and state[i] != 0:
             return state[i]
 
@@ -64,6 +66,7 @@ def minimax(state, depth, player):
     if is_full(state):
         return 0
 
+    #If its computer's turn MAXIMIZE the next move for best play
     if player == COMP:
         max_eval = -math.inf
         for i in range(9):
@@ -74,6 +77,7 @@ def minimax(state, depth, player):
                 max_eval = max(max_eval, eval)
         return max_eval
     else:
+        #If its the human's turn MINIMIZE their next play
         min_eval = math.inf
         for i in range(9):
             if state[i] == 0:
@@ -93,6 +97,8 @@ def best_move(state):
     # Start time measurement
     start_time = time.time()
     
+    #check each space for a possible move if its empty
+    #then evaluate best move and take it.
     for i in range(9):
         if state[i] == 0:
             state[i] = COMP
